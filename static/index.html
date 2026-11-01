@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sarvam Dubber</title>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --panel: #121214;
+      --border: #1e1e22;
+      --text: #e8e8ea;
+      --muted: #8b8b93;
+      --accent: #5ec4a0;
+      --accent-dim: #3d8f72;
+      --danger: #e06c75;
+      --warn: #c8a35a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+    }
+    header {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin: 0.35rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin: 0.9rem 0 0.35rem;
+    }
+    input[type="url"],
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent-dim);
+    }
+    .row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .row > div { flex: 1; min-width: 140px; }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .check input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+    button {
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.9rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #04150f;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button:not(:disabled):active { transform: scale(0.99); }
+    .msg {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      display: none;
+    }
+    .msg.show { display: block; }
+    .msg.ok { border-color: var(--accent-dim); }
+    .msg.err { border-color: var(--danger); color: #f0b0b6; }
+    .msg a { color: var(--accent); }
+    section {
+      margin-top: 2rem;
+    }
+    section h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+    }
+    .run {
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      margin-bottom: 0.5rem;
+      font-size: 0.88rem;
+    }
+    .run a { color: var(--text); text-decoration: none; }
+    .run a:hover { color: var(--accent); }
+    .meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge.queued, .badge.waiting { background: #2a2a30; color: var(--muted); }
+    .badge.in_progress { background: #2a2418; color: var(--warn); }
+    .badge.completed.success { background: #14241c; color: var(--accent); }
+    .badge.completed.failure,
+    .badge.completed.cancelled { background: #2a181a; color: var(--danger); }
+    .hint {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .hint code {
+      background: var(--panel);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Sarvam Video Dubber</h1>
+      <p>Trigger a GitHub Actions dub from a direct video URL. Progress and output live on Actions.</p>
+    </header>
+
+    <form id="form">
+      <label for="video_url">Video URL (direct download)</label>
+      <input id="video_url" name="video_url" type="url" required
+        placeholder="https://example.com/clip.mp4" autocomplete="off" />
+
+      <div class="row">
+        <div>
+          <label for="target">Target language(s)</label>
+          <input id="target" name="target" type="text" value="ml-IN"
+            placeholder="ml-IN hi-IN" />
+        </div>
+        <div>
+          <label for="src_lang">Source language</label>
+          <input id="src_lang" name="src_lang" type="text" value="en-IN" />
+        </div>
+      </div>
+
+      <label class="check">
+        <input id="dry_run" name="dry_run" type="checkbox" />
+        Dry run only (cost estimate, no spend)
+      </label>
+
+      <button type="submit" id="submit">Start dub on GitHub Actions</button>
+    </form>
+
+    <div id="msg" class="msg" role="status"></div>
+
+    <section>
+      <h2>Recent runs</h2>
+      <div id="runs">Loading…</div>
+    </section>
+
+    <p class="hint">
+      Upload the clip somewhere that gives a <strong>direct</strong> file URL
+      (not a share page). On success, open the run and download the
+      <code>dubbed-output</code> artifact. Requires
+      <code>SARVAM_API_KEY</code> as a secret on the dubber repo.
+    </p>
+  </div>
+
+  <script>
+    const form = document.getElementById("form");
+    const msg = document.getElementById("msg");
+    const runsEl = document.getElementById("runs");
+    const submitBtn = document.getElementById("submit");
+
+    function showMsg(text, ok, html) {
+      msg.className = "msg show " + (ok ? "ok" : "err");
+      msg.innerHTML = html || text;
+    }
+
+    function badgeClass(status, conclusion) {
+      if (status === "completed") return "badge completed " + (conclusion || "failure");
+      return "badge " + (status || "queued");
+    }
+
+    function badgeLabel(status, conclusion) {
+      if (status === "completed") return conclusion || "done";
+      return status || "unknown";
+    }
+
+    async function loadRuns() {
+      try {
+        const r = await fetch("/api/runs?per_page=8");
+        if (!r.ok) throw new Error(await r.text());
+        const data = await r.json();
+        if (!data.runs.length) {
+          runsEl.textContent = "No runs yet.";
+          return;
+        }
+        runsEl.innerHTML = data.runs.map((run) => {
+          const label = badgeLabel(run.status, run.conclusion);
+          const cls = badgeClass(run.status, run.conclusion);
+          const when = new Date(run.created_at).toLocaleString();
+          return `<div class="run">
+            <a href="${run.html_url}" target="_blank" rel="noopener">
+              <span class="${cls}">${label}</span>
+              #${run.id}
+            </a>
+            <div class="meta">${when}${run.actor ? " · " + run.actor : ""}</div>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        runsEl.textContent = "Could not load runs (check GITHUB_TOKEN).";
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      msg.className = "msg";
+      try {
+        const body = {
+          video_url: document.getElementById("video_url").value.trim(),
+          target: document.getElementById("target").value.trim() || "ml-IN",
+          src_lang: document.getElementById("src_lang").value.trim() || "en-IN",
+          dry_run: document.getElementById("dry_run").checked,
+        };
+        const r = await fetch("/api/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const detail = data.detail || r.statusText;
+          showMsg(typeof detail === "string" ? detail : JSON.stringify(detail), false);
+          return;
+        }
+        showMsg(
+          data.message,
+          true,
+          `${data.message}<br><a href="${data.actions_url}" target="_blank" rel="noopener">Open workflow on GitHub →</a>`
+        );
+        setTimeout(loadRuns, 1500);
+      } catch (err) {
+        showMsg(String(err), false);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadRuns();
+    setInterval(loadRuns, 15000);
+  </script>
+</body>
+</html>
