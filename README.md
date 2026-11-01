@@ -88,6 +88,33 @@ docker run --rm -p 8000:8000 --env-file .env sarvam-dubber-ui
 - For a private test, run locally or behind a password / VPN / Cloudflare Access.
 - Prefer a fine-scoped fine-grained PAT limited to the dubber repo, contents read + actions write.
 
+## Host (free)
+
+### Render (easiest)
+
+1. Push this repo to GitHub (already done).
+2. [Render](https://render.com) → **New → Blueprint** or **Web Service** → connect `sarvam-dubber-ui`.
+3. Runtime: **Docker** (uses the included `Dockerfile`).
+4. Set env vars:
+   - `GITHUB_TOKEN` — PAT with `repo` + `workflow` (or fine-grained Actions write on the dubber repo)
+   - `GITHUB_OWNER=allanvarghese567-lab`
+   - `GITHUB_REPO=sarvam-video-dubber`
+   - `WORKFLOW_FILE=dub-from-url.yml`
+5. Deploy. Open the `*.onrender.com` URL on your phone.
+
+Free tier spins down after idle; first request may take ~30–60s.
+
+### Railway
+
+1. [Railway](https://railway.app) → New Project → Deploy from GitHub.
+2. Add the same env vars as above.
+3. Railway sets `PORT` automatically; `app.py` already reads it.
+
+### Security
+
+Anyone who can open the public URL can trigger workflows with your token.
+For a private test: use Render **private** service (paid), add basic auth, or keep the UI local/LAN only.
+
 ## License
 
 MIT

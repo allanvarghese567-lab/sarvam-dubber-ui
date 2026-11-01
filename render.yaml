@@ -1,0 +1,20 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: sarvam-dubber-ui
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_OWNER
+        value: allanvarghese567-lab
+      - key: GITHUB_REPO
+        value: sarvam-video-dubber
+      - key: WORKFLOW_FILE
+        value: dub-from-url.yml
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
